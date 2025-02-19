@@ -60,7 +60,7 @@ AUTHORIZATION_KEY=ваш_authorization_key
 GIGACHAT_AUTH_URL=url_авторизации
 GIGACHAT_API_URL=url_api
 4. Запустите приложение:
-python app.py
+uvicorn main:app --reload
 
 
 ## Использование
