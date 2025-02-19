@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Translator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+</head>
+<body>
+    <video class="video-background" autoplay muted loop playsinline>
+        <source src="{{ url_for('static', path='background/7031329_Light_Rays_1920x1080.mp4') }}" type="video/mp4">
+    </video>
+    <div class="video-fallback"></div>
+    <div class="container">
+        <h1>AI Translator</h1>
+        <div class="translation-form">
+            <div class="input-group">
+                <div class="language-select">
+                    <select id="sourceLang">
+                        <option value="auto">🌐 Определить язык</option>
+                        <option value="en-GB">🇬🇧 Английский (Британский)</option>
+                        <option value="en-US">🇺🇸 Английский (США)</option>
+                        <option value="ar">🇸🇦 Арабский</option>
+                        <option value="be">🇧🇾 Белорусский</option>
+                        <option value="bn">🇧🇩 Бенгальский</option>
+                        <option value="de">🇩🇪 Немецкий</option>
+                        <option value="es">🇪🇸 Испанский</option>
+                        <option value="it">🇮🇹 Итальянский</option>
+                        <option value="kk">🇰🇿 Казахский</option>
+                        <option value="zh-CN">🇨🇳 Китайский (Упрощенный)</option>
+                        <option value="zh-TW">🇹🇼 Китайский (Традиционный)</option>
+                        <option value="ko">🇰🇷 Корейский</option>
+                        <option value="pt">🇵🇹 Португальский</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="uk">🇺🇦 Украинский</option>
+                        <option value="fr">🇫🇷 Французский</option>
+                        <option value="hi">🇮🇳 Хинди</option>
+                        <option value="ja">🇯🇵 Японский</option>
+                    </select>
+                </div>
+                <textarea id="sourceText" placeholder="Введите текст для перевода"></textarea>
+                <button class="voice-input" id="voiceInput" title="Голосовой ввод">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
+            
+            <div class="input-group">
+                <div class="language-select">
+                    <select id="targetLang" class="select-lang">
+                        <option value="">🌐 Выбрать язык</option>
+                        <option value="en-GB">🇬🇧 Английский (Британский)</option>
+                        <option value="en-US">🇺🇸 Английский (США)</option>
+                        <option value="ar">🇸🇦 Арабский</option>
+                        <option value="be">🇧🇾 Белорусский</option>
+                        <option value="bn">🇧🇩 Бенгальский</option>
+                        <option value="de">🇩🇪 Немецкий</option>
+                        <option value="es">🇪🇸 Испанский</option>
+                        <option value="it">🇮🇹 Итальянский</option>
+                        <option value="kk">🇰🇿 Казахский</option>
+                        <option value="zh-CN">🇨🇳 Китайский (упрощенный)</option>
+                        <option value="zh-TW">🇹🇼 Китайский (традиционный)</option>
+                        <option value="ko">🇰🇷 Корейский</option>
+                        <option value="pt">🇵🇹 Португальский</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="uk">🇺🇦 Украинский</option>
+                        <option value="fr">🇫🇷 Французский</option>
+                        <option value="hi">🇮🇳 Хинди</option>
+                        <option value="ja">🇯🇵 Японский</option>
+                    </select>
+                    <select id="style">
+                        <option value="formal">👔 Формальный</option>
+                        <option value="informal">😊 Неформальный</option>
+                        <option value="business">💼 Деловой</option>
+                        <option value="flirt">💝 Флирт</option>
+                    </select>
+                </div>
+                <textarea id="translatedText" readonly placeholder="Перевод появится здесь"></textarea>
+                <button class="voice-input" id="playTranslation" title="Прослушать">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+            </div>
+            
+            <div class="controls">
+                <button id="translateBtn" class="btn-primary">
+                    <i class="fas fa-language"></i>
+                    Перевести
+                </button>
+                <div class="action-buttons">
+                    <button id="copyBtn" class="btn-secondary" title="Копировать">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <button id="clearBtn" class="btn-secondary" title="Очистить">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="credits">
+        <a href="https://ru.freepik.com/free-video/sun-rays-break-ocean-surface-as-wave-vortex-forms-frothy-back-splash-white-underwater-angle_3384991#fromView=search&page=1&position=44&uuid=281e5a97-cfa4-4a48-9bf2-1a350aab779a" target="_blank" rel="noopener noreferrer">Видео от Spencer Frost Films</a>
+    </div>
+    <!-- Удалите или закомментируйте эту строку, если она есть -->
+    <!-- <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script> -->
+    <script src="{{ url_for('static', path='/script.js') }}"></script>
+</body>
+</html> 

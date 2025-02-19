@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Переводчик</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .dark-theme {
+            background-color: #1a1a2e;
+            color: #e6e6e6;
+        }
+        .neon-button {
+            background: linear-gradient(45deg, #4a00e0, #8e2de2);
+            transition: all 0.3s ease;
+        }
+        .neon-button:hover {
+            box-shadow: 0 0 15px #4a00e0;
+        }
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="dark-theme min-h-screen">
+    <div id="app" class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold mb-8 text-center">AI Переводчик</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Исходный текст -->
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <select v-model="sourceLang" class="bg-gray-800 rounded p-2">
+                        <option value="auto">Определить язык</option>
+                        <option value="en">English</option>
+                        <option value="ru">Русский</option>
+                        <!-- Добавьте другие языки -->
+                    </select>
+                    
+                    <button @click="startVoiceInput" class="neon-button rounded-full p-2">
+                        🎤
+                    </button>
+                </div>
+                
+                <textarea 
+                    v-model="sourceText"
+                    class="w-full h-48 p-4 rounded bg-gray-800"
+                    placeholder="Введите текст для перевода..."
+                ></textarea>
+            </div>
+            
+            <!-- Перевод -->
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <select v-model="targetLang" class="bg-gray-800 rounded p-2">
+                        <option value="ru">Русский</option>
+                        <option value="en">English</option>
+                        <!-- Добавьте другие языки -->
+                    </select>
+                    
+                    <select v-model="style" class="bg-gray-800 rounded p-2">
+                        <option v-for="s in styles" :value="s">
+                            {{ s.charAt(0).toUpperCase() + s.slice(1) }}
+                        </option>
+                    </select>
+                </div>
+                
+                <div class="relative">
+                    <textarea 
+                        v-model="translatedText"
+                        class="w-full h-48 p-4 rounded bg-gray-800"
+                        readonly
+                    ></textarea>
+                    
+                    <div class="absolute top-2 right-2 space-x-2">
+                        <button 
+                            v-if="audioUrl"
+                            @click="playAudio"
+                            class="neon-button rounded p-2"
+                        >
+                            🔊
+                        </button>
+                        <button 
+                            @click="copyTranslation"
+                            class="neon-button rounded p-2"
+                        >
+                            📋
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button 
+            @click="translate"
+            class="neon-button w-full mt-6 py-3 rounded-lg text-lg font-bold"
+            :disabled="!sourceText || isLoading"
+            :class="{ 'loading': isLoading }"
+        >
+            {{ isLoading ? 'Переводим...' : 'Перевести' }}
+        </button>
+    </div>
+
+    <script>
+        const { createApp } = Vue
+
+        createApp({
+            data() {
+                return {
+                    sourceText: '',
+                    translatedText: '',
+                    sourceLang: 'auto',
+                    targetLang: 'ru',
+                    style: 'formal',
+                    styles: ['formal', 'informal', 'business', 'flirt'],
+                    audioUrl: null,
+                    isLoading: false
+                }
+            },
+            methods: {
+                async translate() {
+                    if (this.isLoading) return;
+                    
+                    this.isLoading = true;
+                    try {
+                        const response = await fetch('http://localhost:8000/translate', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                text: this.sourceText,
+                                source_lang: this.sourceLang === 'auto' ? null : this.sourceLang,
+                                target_lang: this.targetLang,
+                                style: this.style,
+                            }),
+                        });
+                        
+                        const data = await response.json();
+                        this.translatedText = data.translation;
+                        this.audioUrl = data.audio_url;
+                    } catch (error) {
+                        alert('Ошибка при переводе: ' + error);
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+                
+                copyTranslation() {
+                    navigator.clipboard.writeText(this.translatedText);
+                },
+                
+                playAudio() {
+                    if (this.audioUrl) {
+                        const audio = new Audio(`http://localhost:8000/static/speech.mp3`);
+                        audio.play();
+                    }
+                },
+                
+                startVoiceInput() {
+                    if (!('webkitSpeechRecognition' in window)) {
+                        alert('Ваш браузер не поддерживает распознавание речи');
+                        return;
+                    }
+                    
+                    const recognition = new webkitSpeechRecognition();
+                    recognition.lang = this.sourceLang === 'auto' ? 'ru-RU' : this.sourceLang;
+                    recognition.continuous = false;
+                    
+                    recognition.onresult = (event) => {
+                        this.sourceText = event.results[0][0].transcript;
+                    };
+                    
+                    recognition.start();
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html> 

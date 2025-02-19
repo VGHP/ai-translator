@@ -1,0 +1,44 @@
+# Игнорировать папку static и её содержимое
+- static/
+*.mp3
+
+# Игнорировать файлы окружения
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Certificates
+*.pem
+*.cer
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Virtual environment
+venv/
+env/
+.venv/
+.env/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Local development settings
+.local
+local_settings.py
+
+# System files
+.DS_Store
+Thumbs.db 
